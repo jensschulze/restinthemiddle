@@ -124,7 +124,7 @@ func logRequest(request *http.Request) (err error) {
 	}
 
 	bodyString := ""
-	if request.ContentLength > 0 {
+	if request.ContentLength > 0 || isChunked(request.TransferEncoding) {
 		bodyBytes, err := ioutil.ReadAll(request.Body)
 		if err != nil {
 			log.Fatal(err)
@@ -154,7 +154,7 @@ func logResponse(response *http.Response) (err error) {
 	}
 
 	bodyString := ""
-	if response.ContentLength > 0 {
+	if response.ContentLength > 0 || isChunked(response.TransferEncoding) {
 		bodyBytes, err := ioutil.ReadAll(response.Body)
 		if err != nil {
 			log.Fatal(err)
@@ -230,4 +230,8 @@ func singleJoiningSlash(a, b string) string {
 		return a + "/" + b
 	}
 	return a + b
+}
+
+func isChunked(transferEncoding []string) bool {
+	return len(transferEncoding) > 0 && transferEncoding[0] == "chunked"
 }
